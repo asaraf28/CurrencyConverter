@@ -1,2 +1,22 @@
 actAs:
   Timestampable: ~
+
+Currency:
+  columns:
+    code:
+      type: string(3)
+      primary: true
+    number:
+      type: string(3)
+      notnull: true
+    name:
+      type: string(255)
+      notnull: true
+    locations:
+      type: string(255)
+      notnull: true
+    digits:
+      type: integer(1)
+      notnull: true
+  options:
+    orderBy: code ASC
