@@ -1,0 +1,3 @@
+autoload:
+  pdo:
+    path: <?php echo sfConfig::get('sf_lib_dir') ?>/vendor/pdo

@@ -1,0 +1,22 @@
+default:
+  http_metas:
+    content-type: text/html
+
+  metas:
+    title:        Currency Converter
+    description:  Simple Currency Converter
+    keywords:     currency, converter, symfony
+    author:       Steve Lacey
+    language:     en
+
+  stylesheets:
+    - main.css
+
+  javascripts:
+    - http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js
+    - http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.js
+    - http://html5shiv.googlecode.com/svn/trunk/html5.js: { condition: lt IE 9 }
+    - main.js
+
+  has_layout:     true
+  layout:         layout

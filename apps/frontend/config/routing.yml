@@ -1,0 +1,45 @@
+homepage:
+  class: sfRoute
+  url:   /
+  param:
+    module: convert
+    action: index
+    sf_format: xml
+  requirements:
+    amnt: \w+
+    from: \w+
+    to: \w+
+    sf_format: xml
+
+convert:
+  class: sfRoute
+  url:   /%7Eslacey/conv/
+  param:
+    module: convert
+    action: index
+    sf_format: xml
+  requirements:
+    amnt: \w+
+    from: \w+
+    to: \w+
+    sf_format: xml
+
+convert_improved:
+  class: sfRoute
+  url:   /%7Eslacey/conv/:amount/from/:from/to/:to
+  param:
+    module: convert
+    action: index
+    sf_format: xml
+  requirements:
+    amount: \w+
+    from: \w+
+    to: \w+
+    sf_format: xml
+
+clear-cache:
+  class: sfRoute
+  url:   /%7Eslacey/conv/cc
+  param:
+    module: toolkit
+    action: clearCache
