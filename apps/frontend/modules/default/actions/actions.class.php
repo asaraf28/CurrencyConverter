@@ -13,6 +13,7 @@ class defaultActions extends sfActions {
 
   public function executeError404() {
     $this->setError(1000);
+    $this->getResponse()->setStatusCode(200);
   }
 
   public function setError($code) {
