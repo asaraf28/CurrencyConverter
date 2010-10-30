@@ -5,7 +5,7 @@ Options +FollowSymLinks +ExecCGI
 
   # uncomment the following line, if you are having trouble
   # getting no_script_name to work
-  RewriteBase /~slacey/conv/
+  RewriteBase /~slacey/convert/
 
   # we check if the .html version is here (caching)
   RewriteRule ^$ index.html [QSA]
@@ -15,3 +15,6 @@ Options +FollowSymLinks +ExecCGI
   # no, so we redirect to our front web controller
   RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
+
+php_flag register_globals off
+php_flag short_open_tag off
