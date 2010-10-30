@@ -1,10 +1,17 @@
 # You can find more information about this file on the symfony website:
 # http://www.symfony-project.org/reference/1_4/en/04-Settings
 
-prod:
+live:
   .settings:
     no_script_name:         true
     logging_enabled:        false
+
+demo:
+  .settings:
+    error_reporting:        <?php echo (E_ALL | E_STRICT)."\n" ?>
+    web_debug:              true
+    cache:                  false
+    etag:                   false
 
 dev:
   .settings:

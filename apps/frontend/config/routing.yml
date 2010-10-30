@@ -9,24 +9,21 @@ homepage:
     amnt: \w+
     from: \w+
     to: \w+
-    sf_format: xml
 
-convert:
+html:
   class: sfRoute
-  url:   /%7Eslacey/conv/
+  url:   /convert.html
   param:
     module: convert
-    action: index
-    sf_format: xml
+    action: test
   requirements:
     amnt: \w+
     from: \w+
     to: \w+
-    sf_format: xml
 
 convert_improved:
   class: sfRoute
-  url:   /%7Eslacey/conv/:amount/from/:from/to/:to
+  url:   /:amount/from/:from/to/:to
   param:
     module: convert
     action: index
@@ -35,11 +32,10 @@ convert_improved:
     amount: \w+
     from: \w+
     to: \w+
-    sf_format: xml
 
-clear-cache:
+task:
   class: sfRoute
-  url:   /%7Eslacey/conv/cc
+  url:   /task/:action
   param:
-    module: toolkit
-    action: clearCache
+    module: task
+    action: cc
