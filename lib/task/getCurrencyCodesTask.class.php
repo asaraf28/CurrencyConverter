@@ -22,9 +22,13 @@ EOF;
   protected function execute($arguments = array(), $options = array()) {
     $databaseManager = new sfDatabaseManager($this->configuration);
     $connection = $databaseManager->getDatabase($options['connection'])->getConnection();
+    
+    $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
 
-    $web = new sfWebBrowser();
-    $document = $web->get('http://en.wikipedia.org/wiki/Special:Export/ISO_4217', null, array('User-Agent' => 'Steve Lacey <steve@stevelacey.net>'));
+    $document = $web->get('http://en.wikipedia.org/wiki/Special:Export/ISO_4217', null, array(
+      'User-Agent' => 'Steve Lacey <steve@stevelacey.net>',
+      'Cache-Control' => 'no-cache'
+    ));
 
     $xml = new SimpleXMLElement($document->getResponseText());
     $article = $xml->page->revision->text;
