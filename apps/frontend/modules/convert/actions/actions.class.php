@@ -1,25 +1,60 @@
 <?php
 
-class convertActions extends sfActions {
-  private $errors = array (
-    '1000' => 'URL not recognized',
-    '1100' => 'Required parameter is missing',
-    '1200' => 'Parameter not recognized',
-    '2000' => 'Currency type not recognized',
-    '2100' => 'Currency amount must be a decimal number',
-    '3000' => 'Service currently unavailable',
-    '3100' => 'Error in service'
-  );
-
+class convertActions extends myActions {
   public function executeIndex(sfWebRequest $request) {
     if(!$request->hasParameter('amnt') || !$request->hasParameter('from') || !$request->hasParameter('to')) {
-      $this->error = 1100;
+      return $this->setError(1100);
     }
-
-    if(isset($this->error)) {
-      $this->message = $this->errors[$this->error];
+    
+    $currency = Doctrine::getTable('Currency');
+    
+    $from = $currency->findOneByCode($request->getParameter('from'));
+    $to = $currency->findOneByCode($request->getParameter('to'));
+    
+    // Check for recognised currencies
+    if(!$from instanceOf Currency || !$to instanceOf Currency) {
+      return $this->setError(2000);
     }
-
-    $this->forward404Unless(false);
+    
+    // Check if amount contains >2 decimal digits.
+    $this->amount = $request->getParameter('amnt');
+    if(is_numeric($this->amount) && strlen(substr(strrchr($this->amount, '.'), 1)) > 2) {
+      return $this->setError(2100);
+    }
+    
+    $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($from, $to);
+    
+    if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_rate_cache') * 60))) {
+      $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
+      $rss = $web->get('http://themoneyconverter.com/'.$from->getCode().'/rss.xml')->getResponseText();
+      $xml = new SimpleXMLElement($rss);
+      
+      $item = current($xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]'));
+       
+      if($item instanceOf SimpleXMLElement) {
+        $transaction = $transaction instanceOf CurrencyRate ? $transaction : new CurrencyRate();
+        $transaction->setFromCode($from->getCode());
+        $transaction->setToCode($to->getCode());
+        
+        preg_match('/= ([0-9]+\.[0-9]+) /', $item->description, $rate);
+        
+        $transaction->setRate(trim(current($rate), '= '));
+        $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
+        $transaction->save();
+      } else {
+        return $this->setError(2000);
+      }
+    }
+    
+    $this->from = $from;
+    $this->to = $to;
+    $this->transaction = $transaction;
+    $this->result = $this->amount * $transaction->getRate();
+  }
+  
+  public function setError($code) {
+    $this->code = $code;
+    $this->message = sfConfig::get('app_error_'.$code);
+    return sfView::ERROR;
   }
 }

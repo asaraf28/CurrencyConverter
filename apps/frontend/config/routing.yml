@@ -4,34 +4,15 @@ homepage:
   param:
     module: convert
     action: index
-    sf_format: xml
-  requirements:
-    amnt: \w+
-    from: \w+
-    to: \w+
 
-html:
+convert:
   class: sfRoute
-  url:   /convert.html
-  param:
-    module: convert
-    action: test
-  requirements:
-    amnt: \w+
-    from: \w+
-    to: \w+
-
-convert_improved:
-  class: sfRoute
-  url:   /:amount/from/:from/to/:to
+  url:   /:amnt/from/:from/to/:to
   param:
     module: convert
     action: index
-    sf_format: xml
-  requirements:
-    amount: \w+
-    from: \w+
-    to: \w+
+  options:
+    segment_separators: [/] # remove . which is used to define decimals
 
 task:
   class: sfRoute
