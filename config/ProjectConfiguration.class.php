@@ -7,7 +7,8 @@ class ProjectConfiguration extends sfProjectConfiguration {
   public function setup() {
     $this->enableAllPluginsExcept('sfPropelPlugin');
 
-    if(strpos($_SERVER['HTTP_HOST'], 'uwe.ac.uk') !== false) {
+    // Check if being executed on UWE servers (cli-compatible for elsewhere).
+    if(strpos(__FILE__, '/students/') !== false) {
       ProjectConfiguration::setUWEGlobals();
     }
   }
@@ -24,7 +25,7 @@ class ProjectConfiguration extends sfProjectConfiguration {
 
   public function setUWEGlobals() {
     // Standardise UWE variables
-    $_SERVER['REQUEST_URI'] = str_replace(array('/~slacey', '/%7Eslacey', '/convert', '/conv'), '', $_SERVER['REQUEST_URI']);
+    $_SERVER['REQUEST_URI'] = str_replace(array('/~slacey', '/convert', '/conv'), '', urldecode($_SERVER['REQUEST_URI']));
     $_SERVER['HTTP_X_FORWARDED_HOST'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_HOST']));
     $_SERVER['HTTP_X_FORWARDED_SERVER'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_SERVER']));
   }
