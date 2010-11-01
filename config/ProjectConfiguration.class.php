@@ -9,7 +9,7 @@ class ProjectConfiguration extends sfProjectConfiguration {
 
     // Check if being executed on UWE servers (cli-compatible for elsewhere).
     if(strpos(__FILE__, '/students/') !== false) {
-      ProjectConfiguration::setUWEGlobals();
+      self::setUWEGlobals();
     }
   }
 
@@ -22,7 +22,11 @@ class ProjectConfiguration extends sfProjectConfiguration {
       return 'live';
     }
   }
-
+  
+  public function configureDoctrine(Doctrine_Manager $manager) {
+    $manager->registerConnectionDriver('mysql-alternative-pdo', 'Doctrine_Connection_Mysql_Alternative_PDO');
+  }
+  
   public function setUWEGlobals() {
     // Standardise UWE variables
     $_SERVER['REQUEST_URI'] = str_replace(array('/~slacey', '/convert', '/conv'), '', urldecode($_SERVER['REQUEST_URI']));

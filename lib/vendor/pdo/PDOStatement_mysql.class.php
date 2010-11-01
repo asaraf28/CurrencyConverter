@@ -348,6 +348,8 @@ class PDOStatement_mysql {
 		}
 		return $query;
 	}
-	
+
+   function closeCursor() {
+      //return mysql_close($this->__connection);
+   }
 }
-?>

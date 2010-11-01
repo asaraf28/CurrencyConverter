@@ -1,3 +1,4 @@
 autoload:
   pdo:
     path: %sf_lib_dir%/vendor/pdo
+    recursive: on
