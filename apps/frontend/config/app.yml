@@ -1,4 +1,6 @@
 all:
+  convert:
+    cache: 60 # minutes
   error:
     1000: URL not recognized
     1100: Required parameter is missing
@@ -7,11 +9,14 @@ all:
     2100: Currency amount must be a decimal number
     3000: Service currently unavailable
     3100: Error in service
-  rate:
-    cache: 60 # minutes
   uwe:
     proxy: cache.uwe.ac.uk:8080
 
 dev:
+  convert:
+    params:
+      - amnt
+      - from
+      - to
   uwe:
     proxy:

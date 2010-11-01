@@ -2,16 +2,22 @@
 
 class convertActions extends myActions {
   public function executeIndex(sfWebRequest $request) {
+    // Check for additional get parameters
+    if(is_array(sfConfig::get('app_convert_params')) && count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
+      return $this->setError(1000);
+    }
+
+    // Check for missing parameters
     if(!$request->hasParameter('amnt') || !$request->hasParameter('from') || !$request->hasParameter('to')) {
       return $this->setError(1100);
     }
     
+    // Check for recognised currencies
     $currency = Doctrine::getTable('Currency');
     
     $from = $currency->findOneByCode($request->getParameter('from'));
     $to = $currency->findOneByCode($request->getParameter('to'));
     
-    // Check for recognised currencies
     if(!$from instanceOf Currency || !$to instanceOf Currency) {
       return $this->setError(2000);
     }
@@ -21,10 +27,12 @@ class convertActions extends myActions {
     if(is_numeric($this->amount) && strlen(substr(strrchr($this->amount, '.'), 1)) > 2) {
       return $this->setError(2100);
     }
-    
+
+    // Find cached currency rate
     $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($from, $to);
-    
-    if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_rate_cache') * 60))) {
+
+    // Check if currency rate needs updating
+    if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
       $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
       $rss = $web->get('http://themoneyconverter.com/'.$from->getCode().'/rss.xml')->getResponseText();
       $xml = new SimpleXMLElement($rss);
@@ -43,10 +51,15 @@ class convertActions extends myActions {
         $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
         $transaction->save();
       } else {
+        /*
+         * Throws error if themoneyconverter doesn't support 'to' currency
+         * TODO: Add fallback scrape, xe.com?
+         */
         return $this->setError(2000);
       }
     }
-    
+
+    // Push vars to view
     $this->from = $from;
     $this->to = $to;
     $this->transaction = $transaction;
