@@ -1,6 +1,10 @@
 all:
   convert:
     cache: 60 # minutes
+    params:
+      - amnt
+      - from
+      - to
   error:
     1000: URL not recognized
     1100: Required parameter is missing
@@ -13,10 +17,5 @@ all:
     proxy: cache.uwe.ac.uk:8080
 
 dev:
-  convert:
-    params:
-      - amnt
-      - from
-      - to
   uwe:
     proxy:
