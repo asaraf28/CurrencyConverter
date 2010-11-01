@@ -29,7 +29,8 @@ class convertActions extends myActions {
       $rss = $web->get('http://themoneyconverter.com/'.$from->getCode().'/rss.xml')->getResponseText();
       $xml = new SimpleXMLElement($rss);
       
-      $item = current($xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]'));
+      $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
+      $item = is_array($item) ? current($item) : false;
        
       if($item instanceOf SimpleXMLElement) {
         $transaction = $transaction instanceOf CurrencyRate ? $transaction : new CurrencyRate();
