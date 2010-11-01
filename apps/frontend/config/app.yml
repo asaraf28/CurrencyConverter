@@ -11,3 +11,7 @@ all:
     cache: 60 # minutes
   uwe:
     proxy: cache.uwe.ac.uk:8080
+
+dev:
+  uwe:
+    proxy:
