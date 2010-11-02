@@ -6,9 +6,9 @@ class taskActions extends myActions {
     $this->redirect('homepage');
   }
 
-  public function executeGetCurrencyCodes(sfWebRequest $request) {
+  public function executeGetCurrencies(sfWebRequest $request) {
     chdir(sfConfig::get('sf_root_dir')); // Trick plugin into thinking you are in a project directory
-    $task = new getCurrencyCodesTask(sfContext::getInstance()->getEventDispatcher(), new sfFormatter());
+    $task = new getCurrenciesTask(sfContext::getInstance()->getEventDispatcher(), new sfFormatter());
     $task->run(array(), array());
   }
 }
