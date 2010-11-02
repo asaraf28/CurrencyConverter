@@ -1,6 +1,6 @@
 <?php
 
-class getCurrencyCodesTask extends sfBaseTask {
+class getCurrenciesTask extends sfBaseTask {
   protected function configure() {
     $this->addOptions(array(
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
@@ -8,14 +8,14 @@ class getCurrencyCodesTask extends sfBaseTask {
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
     ));
 
-    $this->namespace        = 'wiki';
-    $this->name             = 'get-currency-codes';
-    $this->briefDescription = 'Parses Currency Codes from the Wikipedia API';
+    $this->namespace        = 'web';
+    $this->name             = 'get-currencies';
+    $this->briefDescription = 'Pull Currency data from the Wikipedia API & XE';
     $this->detailedDescription = <<<EOF
-The [get-currency-codes|INFO] task pulls XML from the Wikipedia API and parses the BBCode.
+The [get-currencies|INFO] task pulls XML from the Wikipedia API & parses HTML from XE.
 Call it with:
 
-  [php symfony get-currency-codes|INFO]
+  [php symfony get-currencies|INFO]
 EOF;
 
     $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
