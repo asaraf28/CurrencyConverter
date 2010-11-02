@@ -17,24 +17,31 @@ Call it with:
 
   [php symfony get-currency-codes|INFO]
 EOF;
+
+    $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
   }
 
   protected function execute($arguments = array(), $options = array()) {
     $databaseManager = new sfDatabaseManager($this->configuration);
     $connection = $databaseManager->getDatabase($options['connection'])->getConnection();
     
-    $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
+    // Truncate tables to prevent duplicates and relational integrity errors
+    $connection->query('TRUNCATE TABLE '.Doctrine::getTable('CurrencyCountry')->getTableName());
+    $connection->query('TRUNCATE TABLE '.Doctrine::getTable('Currency')->getTableName());
 
-    $document = $web->get('http://en.wikipedia.org/wiki/Special:Export/ISO_4217', null, array(
+    $this->getCurrencies();
+    $this->getCountries();
+  }
+
+  protected function getCurrencies() {
+    $wikipedia = $this->web->get('http://en.wikipedia.org/wiki/Special:Export/ISO_4217', null, array(
       'User-Agent' => 'Steve Lacey <steve@stevelacey.net>',
       'Cache-Control' => 'no-cache'
     ));
 
-    $xml = new SimpleXMLElement($document->getResponseText());
+    $xml = new SimpleXMLElement($wikipedia->getResponseText());
     $article = $xml->page->revision->text;
     $table = substr($article, strpos($article, '{|'), strpos($article, '|}') - strpos($article, '{|'));
-
-    $connection->query('TRUNCATE TABLE '.Doctrine::getTable('Currency')->getTableName());
 
     foreach(explode('-| ', str_replace(array('[', ']', "\n"), '', $table)) as $row) {
       $row = explode(' || ', trim($row, '| '));
@@ -45,8 +52,31 @@ EOF;
         $currency->setNumber($row[1]);
         $currency->setDigits(ceil($row[2]));
         $currency->setName($row[3]);
-        $currency->setLocations($row[4]);
         $currency->save();
+      }
+    }
+  }
+
+  protected function getCountries() {
+    $xe = $this->web->get('http://www.xe.com/ucc/full', null, array(
+      'Cache-Control' => 'no-cache'
+    ));
+
+    $doc = new DOMDocument();
+
+    // It's rare you'll have valid XHTML, suppress any errors- it'll do its best.
+    @$doc->loadhtml($xe->getResponseText());
+    $xpath = new DOMXPath($doc);
+
+    foreach($xpath->query('/html/body//form//select[@name="From"]')->item(0)->getElementsByTagName('option') as $option) {
+      $currency = Doctrine::getTable('Currency')->findOneByCode($option->getAttribute('value'));
+      $name = substr($option->textContent, 0, strpos($option->textContent, ','));
+
+      if($currency instanceOf Currency && !empty($name)) {
+        $country = new CurrencyCountry();
+        $country->setCurrency($currency);
+        $country->setName($name);
+        $country->save();
       }
     }
   }

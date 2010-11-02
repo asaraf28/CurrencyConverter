@@ -12,14 +12,32 @@ Currency:
     name:
       type: string(255)
       notnull: true
-    locations:
-      type: string(255)
-      notnull: true
     digits:
       type: integer(1)
       notnull: true
   options:
     orderBy: code ASC
+
+CurrencyCountry:
+  columns:
+    id:
+      type: integer(11)
+      primary: true
+      autoincrement: true
+    code:
+      type: string(3)
+      notnull: true
+    name:
+      type: string(255)
+      notnull: true
+  options:
+    orderBy: name ASC
+  relations:
+    Currency:
+      class: Currency
+      local: code
+      foreign: code
+      foreignAlias: Countries
 
 CurrencyRate:
   columns:

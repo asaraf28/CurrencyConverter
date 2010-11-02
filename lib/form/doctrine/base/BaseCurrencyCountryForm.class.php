@@ -1,38 +1,36 @@
 <?php
 
 /**
- * Currency form base class.
+ * CurrencyCountry form base class.
  *
- * @method Currency getObject() Returns the current form's model object
+ * @method CurrencyCountry getObject() Returns the current form's model object
  *
  * @package    currency-converter
  * @subpackage form
  * @author     Your name here
  * @version    SVN: $Id: sfDoctrineFormGeneratedTemplate.php 29553 2010-05-20 14:33:00Z Kris.Wallsmith $
  */
-abstract class BaseCurrencyForm extends BaseFormDoctrine
+abstract class BaseCurrencyCountryForm extends BaseFormDoctrine
 {
   public function setup()
   {
     $this->setWidgets(array(
-      'code'       => new sfWidgetFormInputHidden(),
-      'number'     => new sfWidgetFormInputText(),
+      'id'         => new sfWidgetFormInputHidden(),
+      'code'       => new sfWidgetFormDoctrineChoice(array('model' => $this->getRelatedModelName('Currency'), 'add_empty' => false)),
       'name'       => new sfWidgetFormInputText(),
-      'digits'     => new sfWidgetFormInputText(),
       'created_at' => new sfWidgetFormDateTime(),
       'updated_at' => new sfWidgetFormDateTime(),
     ));
 
     $this->setValidators(array(
-      'code'       => new sfValidatorChoice(array('choices' => array($this->getObject()->get('code')), 'empty_value' => $this->getObject()->get('code'), 'required' => false)),
-      'number'     => new sfValidatorString(array('max_length' => 3)),
+      'id'         => new sfValidatorChoice(array('choices' => array($this->getObject()->get('id')), 'empty_value' => $this->getObject()->get('id'), 'required' => false)),
+      'code'       => new sfValidatorDoctrineChoice(array('model' => $this->getRelatedModelName('Currency'))),
       'name'       => new sfValidatorString(array('max_length' => 255)),
-      'digits'     => new sfValidatorInteger(),
       'created_at' => new sfValidatorDateTime(),
       'updated_at' => new sfValidatorDateTime(),
     ));
 
-    $this->widgetSchema->setNameFormat('currency[%s]');
+    $this->widgetSchema->setNameFormat('currency_country[%s]');
 
     $this->errorSchema = new sfValidatorErrorSchema($this->validatorSchema);
 
@@ -43,7 +41,7 @@ abstract class BaseCurrencyForm extends BaseFormDoctrine
 
   public function getModelName()
   {
-    return 'Currency';
+    return 'CurrencyCountry';
   }
 
 }

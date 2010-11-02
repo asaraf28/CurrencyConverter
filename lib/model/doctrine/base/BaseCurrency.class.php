@@ -8,19 +8,19 @@
  * @property string $code
  * @property string $number
  * @property string $name
- * @property string $locations
  * @property integer $digits
+ * @property Doctrine_Collection $Countries
  * 
- * @method string   getCode()      Returns the current record's "code" value
- * @method string   getNumber()    Returns the current record's "number" value
- * @method string   getName()      Returns the current record's "name" value
- * @method string   getLocations() Returns the current record's "locations" value
- * @method integer  getDigits()    Returns the current record's "digits" value
- * @method Currency setCode()      Sets the current record's "code" value
- * @method Currency setNumber()    Sets the current record's "number" value
- * @method Currency setName()      Sets the current record's "name" value
- * @method Currency setLocations() Sets the current record's "locations" value
- * @method Currency setDigits()    Sets the current record's "digits" value
+ * @method string              getCode()      Returns the current record's "code" value
+ * @method string              getNumber()    Returns the current record's "number" value
+ * @method string              getName()      Returns the current record's "name" value
+ * @method integer             getDigits()    Returns the current record's "digits" value
+ * @method Doctrine_Collection getCountries() Returns the current record's "Countries" collection
+ * @method Currency            setCode()      Sets the current record's "code" value
+ * @method Currency            setNumber()    Sets the current record's "number" value
+ * @method Currency            setName()      Sets the current record's "name" value
+ * @method Currency            setDigits()    Sets the current record's "digits" value
+ * @method Currency            setCountries() Sets the current record's "Countries" collection
  * 
  * @package    currency-converter
  * @subpackage model
@@ -47,11 +47,6 @@ abstract class BaseCurrency extends sfDoctrineRecord
              'notnull' => true,
              'length' => 255,
              ));
-        $this->hasColumn('locations', 'string', 255, array(
-             'type' => 'string',
-             'notnull' => true,
-             'length' => 255,
-             ));
         $this->hasColumn('digits', 'integer', 1, array(
              'type' => 'integer',
              'notnull' => true,
@@ -64,6 +59,10 @@ abstract class BaseCurrency extends sfDoctrineRecord
     public function setUp()
     {
         parent::setUp();
+        $this->hasMany('CurrencyCountry as Countries', array(
+             'local' => 'code',
+             'foreign' => 'code'));
+
         $timestampable0 = new Doctrine_Template_Timestampable();
         $this->actAs($timestampable0);
     }
