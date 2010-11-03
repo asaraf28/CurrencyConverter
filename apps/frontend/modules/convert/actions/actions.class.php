@@ -4,7 +4,7 @@ class convertActions extends myActions {
   public function executeIndex(sfWebRequest $request) {
     // Check for additional get parameters
     if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
-      return $this->setError(1000);
+      return $this->setError(1200);
     }
 
     // Check for missing parameters
