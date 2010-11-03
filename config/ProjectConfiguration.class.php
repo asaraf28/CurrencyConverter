@@ -29,8 +29,10 @@ class ProjectConfiguration extends sfProjectConfiguration {
   
   public function setUWEGlobals() {
     // Standardise UWE variables
-    $_SERVER['REQUEST_URI'] = str_replace(array('/~slacey', '/convert', '/conv'), '', urldecode($_SERVER['REQUEST_URI']));
-    $_SERVER['HTTP_X_FORWARDED_HOST'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_HOST']));
-    $_SERVER['HTTP_X_FORWARDED_SERVER'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_SERVER']));
+    if(php_sapi_name() != 'cli') { 
+      $_SERVER['REQUEST_URI'] = str_replace(array('/~slacey', '/convert', '/conv'), '', urldecode($_SERVER['REQUEST_URI']));
+      $_SERVER['HTTP_X_FORWARDED_HOST'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_HOST']));
+      $_SERVER['HTTP_X_FORWARDED_SERVER'] = current(explode(', ', $_SERVER['HTTP_X_FORWARDED_SERVER']));
+    }
   }
 }
