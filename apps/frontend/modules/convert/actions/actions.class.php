@@ -1,6 +1,8 @@
 <?php
 
 class convertActions extends myActions {
+  private $cur = 'USD';
+
   public function executeIndex(sfWebRequest $request) {
     // Check for additional get parameters
     if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
@@ -49,21 +51,22 @@ class convertActions extends myActions {
       }
 
       if($item instanceOf SimpleXMLElement) {
-        preg_match('/= ([0-9]+\.[0-9]+) /', $item->description, $rate);
-        
-        $transaction->setRate(trim(current($rate), '= '));
+        preg_match('/= ([0-9]+\.?[0-9]*) /', $item->description, $matches);
+
+        $transaction->setRate($matches[1]);
         $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
         $transaction->save();
       } else {
-        $web->get('http://www.bloomberg.com/js/calculators/currdata.js');
+        // Fallback functionality for rates not surved by themoneyconverter
+        $js = $web->get('http://www.bloomberg.com/js/calculators/currdata.js')->getResponseText();
         
-        // This should always be 1
-        preg_match('/price\[\'USD:CUR\'\] = ([0-9]+\.[0-9]?);/', $web->getResponseText(), $usd2cur);
+        $usd2cur = $this->getRateFromJS($this->cur, $js); // This should always be 1
+        $from2cur = $this->getRateFromJS($from->getCode(), $js);
+        $to2cur = $this->getRateFromJS($to->getCode(), $js);
 
-        preg_match('/price\[\''.$from->getCode().':CUR\'\] = ([0-9]+[\.]?[0-9]?);/', $web->getResponseText(), $from2cur);
-        preg_match('/price\[\''.$to->getCode().':CUR\'\] = ([0-9]+[\.]?[0-9]?);/', $web->getResponseText(), $to2cur);
-        
-        $transaction->setRate($usd2cur[1] / $from2cur[1] * $to2cur[1]);
+        if($usd2cur && $from2cur && $to2cur) {
+          $transaction->setRate($usd2cur / $from2cur * $to2cur);
+        }
       }
 
       if($transaction->getRate() > 0) {
@@ -78,6 +81,11 @@ class convertActions extends myActions {
     $this->to = $to;
     $this->transaction = $transaction;
     $this->result = $this->amount * $transaction->getRate();
+  }
+
+  public function getRateFromJS($code, $js) {
+    preg_match('/price\[\''.$code.':CUR\'\] = ([0-9]+\.?[0-9]*)\;/', $js, $matches);
+    return isset($matches[1]) ? $matches[1] : false;
   }
   
   public function setError($code) {
