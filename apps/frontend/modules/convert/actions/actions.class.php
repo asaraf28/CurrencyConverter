@@ -31,30 +31,44 @@ class convertActions extends myActions {
     // Find cached currency rate
     $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($from, $to);
 
+    // Create browser
+    $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
+
     // Check if currency rate needs updating
     if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
-      $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
       $rss = $web->get('http://themoneyconverter.com/'.$from->getCode().'/rss.xml')->getResponseText();
       $xml = new SimpleXMLElement($rss);
       
       $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
       $item = is_array($item) ? current($item) : false;
-       
-      if($item instanceOf SimpleXMLElement) {
-        $transaction = $transaction instanceOf CurrencyRate ? $transaction : new CurrencyRate();
+      
+      if(!$transaction instanceOf CurrencyRate) {
+        $transaction = new CurrencyRate();
         $transaction->setFromCode($from->getCode());
         $transaction->setToCode($to->getCode());
-        
+      }
+
+      if($item instanceOf SimpleXMLElement) {
         preg_match('/= ([0-9]+\.[0-9]+) /', $item->description, $rate);
         
         $transaction->setRate(trim(current($rate), '= '));
         $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
         $transaction->save();
       } else {
-        /*
-         * Throws error if themoneyconverter doesn't support 'to' currency
-         * TODO: Add fallback scrape, xe.com?
-         */
+        $web->get('http://www.bloomberg.com/js/calculators/currdata.js');
+        
+        // This should always be 1
+        preg_match('/price\[\'USD:CUR\'\] = ([0-9]+\.[0-9]?);/', $web->getResponseText(), $usd2cur);
+
+        preg_match('/price\[\''.$from->getCode().':CUR\'\] = ([0-9]+[\.]?[0-9]?);/', $web->getResponseText(), $from2cur);
+        preg_match('/price\[\''.$to->getCode().':CUR\'\] = ([0-9]+[\.]?[0-9]?);/', $web->getResponseText(), $to2cur);
+        
+        $transaction->setRate($usd2cur[1] / $from2cur[1] * $to2cur[1]);
+      }
+
+      if($transaction->getRate() > 0) {
+        $transaction->save();
+      } else {
         return $this->setError(2000);
       }
     }
