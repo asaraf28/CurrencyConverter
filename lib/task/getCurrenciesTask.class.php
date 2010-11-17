@@ -48,7 +48,7 @@ EOF;
 
       if(isset($row[2], $row[4]) && is_numeric($row[2])) {
         $currency = new Currency();
-        $currency->setCode($row[0]);
+        $currency->setCode(str_replace('ZWL', 'ZWD', $row[0])); // The ISO 4217 spec lists the Zimbabwean Dollar incorrectly, everywhere else accepts it as ZWD.
         $currency->setNumber($row[1]);
         $currency->setDigits(ceil($row[2]));
         $currency->setName($row[3]);
