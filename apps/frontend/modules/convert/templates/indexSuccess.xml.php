@@ -1,5 +1,5 @@
-  <at><?php echo $transaction->getDateTimeObject('updated_at')->format('d M Y H:i') ?></at>
-  <rate><?php echo $transaction->getRate() ?></rate>
+  <at><?php echo $at->format('d M Y H:i') ?></at>
+  <rate><?php echo $rate ?></rate>
   <from>
     <code><?php echo $from->getCode() ?></code>
     <curr><?php echo $from->getName() ?></curr>

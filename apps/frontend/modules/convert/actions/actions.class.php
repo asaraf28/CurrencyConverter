@@ -26,10 +26,10 @@ class convertActions extends myActions {
     
     // Check if amount contains >2 decimal digits.
     $this->amount = $request->getParameter('amnt');
-    if(is_numeric($this->amount) && strlen(substr(strrchr($this->amount, '.'), 1)) > 2) {
+    if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_result')) {
       return $this->setError(2100);
     }
-
+    
     // Find cached currency rate
     $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($from, $to);
 
@@ -72,15 +72,17 @@ class convertActions extends myActions {
       if($transaction->getRate() > 0) {
         $transaction->save();
       } else {
-        return $this->setError(2000);
+        return $this->setError(4000);
       }
     }
 
     // Push vars to view
     $this->from = $from;
     $this->to = $to;
-    $this->transaction = $transaction;
-    $this->result = $this->amount * $transaction->getRate();
+    // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
+    $this->rate = $transaction->getRate() < 0.00001 ? $transaction->getRate() : round($transaction->getRate(), sfConfig::get('app_convert_decimal_result'));
+    $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
+    $this->at = $transaction->getDateTimeObject('updated_at');
   }
 
   public function getRateFromJS($code, $js) {

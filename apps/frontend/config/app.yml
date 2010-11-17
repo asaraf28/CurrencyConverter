@@ -5,6 +5,8 @@ all:
       - amnt
       - from
       - to
+    decimal_amount: 2 # decimal places
+    decimal_result: 5 # decimal places
   error:
     1000: URL not recognized
     1100: Required parameter is missing
@@ -13,9 +15,10 @@ all:
     2100: Currency amount must be a decimal number
     3000: Service currently unavailable
     3100: Error in service
+    4000: Currency rate unavailable
   uwe:
     proxy: cache.uwe.ac.uk:8080
 
 dev:
   uwe:
-    proxy:
+    proxy: # Remove UWE Proxy

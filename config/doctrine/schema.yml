@@ -49,5 +49,5 @@ CurrencyRate:
       primary: true
     rate:
       type: double()
-      scale: 5
+      scale: 20
       notnull: true
