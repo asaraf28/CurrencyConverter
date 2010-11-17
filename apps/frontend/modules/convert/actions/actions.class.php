@@ -80,7 +80,7 @@ class convertActions extends myActions {
     $this->from = $from;
     $this->to = $to;
     // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
-    $this->rate = $transaction->getRate() < 0.00001 ? $transaction->getRate() : round($transaction->getRate(), sfConfig::get('app_convert_decimal_result'));
+    $this->rate = $transaction->getRate() < 0.00001 ? number_format($transaction->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($transaction->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
     $this->at = $transaction->getDateTimeObject('updated_at');
   }

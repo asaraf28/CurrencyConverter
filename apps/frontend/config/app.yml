@@ -5,8 +5,9 @@ all:
       - amnt
       - from
       - to
-    decimal_amount: 2 # decimal places
-    decimal_result: 5 # decimal places
+    decimal_amount: 2  # decimal places
+    decimal_result: 5  # decimal places
+    decimal_stored: 20 # decimal places
   error:
     1000: URL not recognized
     1100: Required parameter is missing
