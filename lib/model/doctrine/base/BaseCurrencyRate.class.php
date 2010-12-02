@@ -36,11 +36,11 @@ abstract class BaseCurrencyRate extends sfDoctrineRecord
              'primary' => true,
              'length' => 3,
              ));
-        $this->hasColumn('rate', 'double', null, array(
+        $this->hasColumn('rate', 'double', 20, array(
              'type' => 'double',
-             'scale' => 20,
+             'scale' => 18,
              'notnull' => true,
-             'length' => '',
+             'length' => 20,
              ));
     }
 
