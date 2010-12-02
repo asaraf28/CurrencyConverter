@@ -1,8 +1,6 @@
 <?php
 
 class apiActions extends myActions {
-  private $cur = 'USD';
-
   public function executeConvert(sfWebRequest $request) {
     // Check for additional get parameters
     if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
@@ -38,7 +36,7 @@ class apiActions extends myActions {
 
     // Check if currency rate needs updating
     if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
-      $rss = $web->get('http://themoneyconverter.com/'.$from->getCode().'/rss.xml')->getResponseText();
+      $rss = $web->get(sfConfig::get('app_source_rates_rss').'/'.$from->getCode().'/rss.xml')->getResponseText();
       $xml = new SimpleXMLElement($rss);
       
       $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
@@ -58,9 +56,9 @@ class apiActions extends myActions {
         $transaction->save();
       } else {
         // Fallback functionality for rates not surved by themoneyconverter
-        $js = $web->get('http://www.bloomberg.com/js/calculators/currdata.js')->getResponseText();
+        $js = $web->get(sfConfig::get('app_source_rates_js'))->getResponseText();
         
-        $usd2cur = $this->getRateFromJS($this->cur, $js); // This should always be 1
+        $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
         $from2cur = $this->getRateFromJS($from->getCode(), $js);
         $to2cur = $this->getRateFromJS($to->getCode(), $js);
 

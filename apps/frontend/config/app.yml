@@ -21,11 +21,17 @@ all:
 
   source:
     currencies: http://en.wikipedia.org/wiki/Special:Export/ISO_4217
-    countries: http://www.xe.com/ucc/full
+    countries:  http://www.xe.com/ucc/full
+
+    rates_rss:  http://themoneyconverter.com
+    rates_js:   http://www.bloomberg.com/js/calculators/currdata.js
+
+  currency:
+    base: USD
 
   currency_alias:
     ZWL: ZWD # The ISO 4217 spec lists the Zimbabwean Dollar incorrectly, everywhere else accepts it as ZWD.
-  
+
   web:
     proxy: cache.uwe.ac.uk:8080
 
