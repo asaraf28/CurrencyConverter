@@ -17,9 +17,9 @@ all:
     3000: Service currently unavailable
     3100: Error in service
     4000: Currency rate unavailable
-  uwe:
+  web:
     proxy: cache.uwe.ac.uk:8080
 
 dev:
-  uwe:
+  web:
     proxy: # Remove UWE Proxy

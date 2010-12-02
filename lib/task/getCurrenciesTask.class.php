@@ -18,7 +18,7 @@ Call it with:
   [php symfony get-currencies|INFO]
 EOF;
 
-    $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_uwe_proxy')));
+    $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
   }
 
   protected function execute($arguments = array(), $options = array()) {
