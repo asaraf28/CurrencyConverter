@@ -17,13 +17,13 @@ class apiActions extends myActions {
     
     $this->from = $currency->findOneByCode($request->getParameter('from'));
     $this->to = $currency->findOneByCode($request->getParameter('to'));
+    $this->amount = $request->getParameter('amnt');
     
     if(!$this->from instanceOf Currency || !$this->to instanceOf Currency) {
       return $this->setError(2000);
     }
     
     // Check if amount contains >2 decimal digits.
-    $this->amount = $request->getParameter('amnt');
     if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_result')) {
       return $this->setError(2100);
     }
@@ -33,30 +33,21 @@ class apiActions extends myActions {
 
     // Check if currency rate needs updating
     if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
-      $rss = $this->getBrowser()->get(sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml')->getResponseText();
-      $xml = new SimpleXMLElement($rss);
-      
-      $item = $xml->xpath('/rss/channel/item[title="'.$this->to->getCode().'/'.$this->from->getCode().'"]');
-      $item = is_array($item) ? current($item) : false;
-      
       if(!$transaction instanceOf CurrencyRate) {
         $transaction = new CurrencyRate();
         $transaction->setFromCode($this->from->getCode());
         $transaction->setToCode($this->to->getCode());
       }
 
-      if($item instanceOf SimpleXMLElement) {
-        preg_match('/= ([0-9]+\.?[0-9]*) /', $item->description, $matches);
+      $transaction->setRate($this->getMoneyConverterRate());
 
-        $transaction->setRate($matches[1]);
-        $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
-        $transaction->save();
-      } else {
+      if(!$transaction->getRate()) {
         // Fallback functionality for rates not surved by themoneyconverter
         $transaction->setRate($this->getBloombergRate());
       }
 
       if($transaction->getRate() > 0) {
+        $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
         $transaction->save();
       } else {
         return $this->setError(4000);
@@ -75,6 +66,21 @@ class apiActions extends myActions {
     }
 
     return $this->web;
+  }
+
+  public function getMoneyConverterRate() {
+    $rss = $this->getBrowser()->get(sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml')->getResponseText();
+    $xml = new SimpleXMLElement($rss);
+
+    $item = $xml->xpath('/rss/channel/item[title="'.$this->to->getCode().'/'.$this->from->getCode().'"]');
+    $item = is_array($item) ? current($item) : false;
+
+    if($item instanceOf SimpleXMLElement) {
+      preg_match('/= ([0-9]+\.?[0-9]*) /', $item->description, $matches);
+      return $matches[1];
+    } else {
+      return false;
+    }
   }
 
   public function getBloombergRate() {
