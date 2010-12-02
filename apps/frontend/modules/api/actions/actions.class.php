@@ -1,9 +1,9 @@
 <?php
 
-class convertActions extends myActions {
+class apiActions extends myActions {
   private $cur = 'USD';
 
-  public function executeIndex(sfWebRequest $request) {
+  public function executeConvert(sfWebRequest $request) {
     // Check for additional get parameters
     if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
       return $this->setError(1200);

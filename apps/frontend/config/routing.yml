@@ -2,17 +2,17 @@ homepage:
   class: sfRoute
   url:   /
   param:
-    module: convert
-    action: index
+    module: api
+    action: convert
 
 convert:
   class: sfRoute
   url:   /:amnt/from/:from/to/:to
   param:
-    module: convert
-    action: index
+    module: api
+    action: convert
   options:
-    segment_separators: [/] # remove . which is used to define decimals
+    segment_separators: [/] # remove "." which is used to define decimals
 
 task:
   class: sfRoute
