@@ -14,7 +14,7 @@ all:
       extra_parameters_as_query_string: true
 
   request:
-    class: sfWebRequest
+    class: myWebRequest
     param:
       default_format: xml
 
