@@ -15,10 +15,10 @@ class apiActions extends myActions {
     // Check for recognised currencies
     $currency = Doctrine::getTable('Currency');
     
-    $from = $currency->findOneByCode($request->getParameter('from'));
-    $to = $currency->findOneByCode($request->getParameter('to'));
+    $this->from = $currency->findOneByCode($request->getParameter('from'));
+    $this->to = $currency->findOneByCode($request->getParameter('to'));
     
-    if(!$from instanceOf Currency || !$to instanceOf Currency) {
+    if(!$this->from instanceOf Currency || !$this->to instanceOf Currency) {
       return $this->setError(2000);
     }
     
@@ -29,23 +29,20 @@ class apiActions extends myActions {
     }
     
     // Find cached currency rate
-    $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($from, $to);
-
-    // Create browser
-    $web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
+    $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($this->from, $this->to);
 
     // Check if currency rate needs updating
     if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
-      $rss = $web->get(sfConfig::get('app_source_rates_rss').'/'.$from->getCode().'/rss.xml')->getResponseText();
+      $rss = $this->getBrowser()->get(sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml')->getResponseText();
       $xml = new SimpleXMLElement($rss);
       
-      $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
+      $item = $xml->xpath('/rss/channel/item[title="'.$this->to->getCode().'/'.$this->from->getCode().'"]');
       $item = is_array($item) ? current($item) : false;
       
       if(!$transaction instanceOf CurrencyRate) {
         $transaction = new CurrencyRate();
-        $transaction->setFromCode($from->getCode());
-        $transaction->setToCode($to->getCode());
+        $transaction->setFromCode($this->from->getCode());
+        $transaction->setToCode($this->to->getCode());
       }
 
       if($item instanceOf SimpleXMLElement) {
@@ -56,15 +53,7 @@ class apiActions extends myActions {
         $transaction->save();
       } else {
         // Fallback functionality for rates not surved by themoneyconverter
-        $js = $web->get(sfConfig::get('app_source_rates_js'))->getResponseText();
-        
-        $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
-        $from2cur = $this->getRateFromJS($from->getCode(), $js);
-        $to2cur = $this->getRateFromJS($to->getCode(), $js);
-
-        if($usd2cur && $from2cur && $to2cur) {
-          $transaction->setRate($usd2cur / $from2cur * $to2cur);
-        }
+        $transaction->setRate($this->getBloombergRate());
       }
 
       if($transaction->getRate() > 0) {
@@ -74,13 +63,32 @@ class apiActions extends myActions {
       }
     }
 
-    // Push vars to view
-    $this->from = $from;
-    $this->to = $to;
     // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
     $this->rate = $transaction->getRate() < 0.00001 ? number_format($transaction->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($transaction->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
     $this->at = $transaction->getDateTimeObject('updated_at');
+  }
+
+  public function getBrowser() {
+    if(is_null($this->web)) {
+      $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
+    }
+
+    return $this->web;
+  }
+
+  public function getBloombergRate() {
+    $js = $this->getBrowser()->get(sfConfig::get('app_source_rates_js'))->getResponseText();
+
+    $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
+    $from2cur = $this->getRateFromJS($this->from->getCode(), $js);
+    $to2cur = $this->getRateFromJS($this->to->getCode(), $js);
+
+    if($usd2cur && $from2cur && $to2cur) {
+      return $usd2cur / $from2cur * $to2cur;
+    } else {
+      return false;
+    }
   }
 
   public function getRateFromJS($code, $js) {
