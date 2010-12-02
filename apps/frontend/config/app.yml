@@ -8,6 +8,7 @@ all:
     decimal_amount: 2  # decimal places
     decimal_result: 5  # decimal places
     decimal_stored: 20 # decimal places
+
   error:
     1000: URL not recognized
     1100: Required parameter is missing
@@ -17,6 +18,14 @@ all:
     3000: Service currently unavailable
     3100: Error in service
     4000: Currency rate unavailable
+
+  source:
+    currencies: http://en.wikipedia.org/wiki/Special:Export/ISO_4217
+    countries: http://www.xe.com/ucc/full
+
+  currency_alias:
+    ZWL: ZWD # The ISO 4217 spec lists the Zimbabwean Dollar incorrectly, everywhere else accepts it as ZWD.
+  
   web:
     proxy: cache.uwe.ac.uk:8080
 

@@ -34,7 +34,7 @@ EOF;
   }
 
   protected function getCurrencies() {
-    $wikipedia = $this->web->get('http://en.wikipedia.org/wiki/Special:Export/ISO_4217', null, array(
+    $wikipedia = $this->web->get(sfConfig::get('app_source_currencies'), null, array(
       'User-Agent' => 'Steve Lacey <steve@stevelacey.net>',
       'Cache-Control' => 'no-cache'
     ));
@@ -48,7 +48,7 @@ EOF;
 
       if(isset($row[2], $row[4]) && is_numeric($row[2])) {
         $currency = new Currency();
-        $currency->setCode(str_replace('ZWL', 'ZWD', $row[0])); // The ISO 4217 spec lists the Zimbabwean Dollar incorrectly, everywhere else accepts it as ZWD.
+        $currency->setCode(sfConfig::get('app_currency_alias_'.$row[0], $row[0]));
         $currency->setNumber($row[1]);
         $currency->setDigits(ceil($row[2]));
         $currency->setName($row[3]);
@@ -58,7 +58,7 @@ EOF;
   }
 
   protected function getCountries() {
-    $xe = $this->web->get('http://www.xe.com/ucc/full', null, array(
+    $xe = $this->web->get(sfConfig::get('app_source_countries'), null, array(
       'Cache-Control' => 'no-cache'
     ));
 
