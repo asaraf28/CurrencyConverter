@@ -12,11 +12,12 @@ all:
     1000: URL not recognized
     1100: Required parameter is missing
     1200: Parameter not recognized
+    1300: Currencies must not be the same
     2000: Currency type not recognized
     2100: Currency amount must be a decimal number
     3000: Service currently unavailable
     3100: Error in service
-    4000: Currency rate unavailable
+    3200: Currency rate unavailable
 
   cache:
     moneyconverter: %sf_cache_dir%/moneyconverter.rss

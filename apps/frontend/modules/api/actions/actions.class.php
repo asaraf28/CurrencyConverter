@@ -12,46 +12,51 @@ class apiActions extends myActions {
       return $this->setError(1100);
     }
     
-    // Check for recognised currencies
     $currency = Doctrine::getTable('Currency'); /* @var $currency Doctrine_Table */
     
     $this->from = $currency->findOneByCode($request->getParameter('from'));
     $this->to = $currency->findOneByCode($request->getParameter('to'));
     $this->amount = $request->getParameter('amnt');
-    
+
+    // Check for recognised currencies
     if(!$this->from instanceOf Currency || !$this->to instanceOf Currency) {
       return $this->setError(2000);
     }
     
+    // Check the currencies are not the same
+    if($this->from == $this->to) {
+      return $this->setError(1300);
+    }
+
     // Check if amount contains >2 decimal digits.
     if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_result')) {
       return $this->setError(2100);
     }
     
     // Find cached currency rate
-    $transaction = Doctrine::getTable('CurrencyRate')->getCurrencyRate($this->from, $this->to); /* @var $transaction CurrencyRate */
+    $currency_rate = Doctrine::getTable('CurrencyRate')->getCurrencyRate($this->from, $this->to); /* @var $currency_rate CurrencyRate */
 
     // Check if currency rate needs updating
-    if($transaction->isNew() || $transaction->isOutdated()) {
-      $transaction->setRate($this->getMoneyConverterRate());
+    if($currency_rate->isNew() || $currency_rate->isOutdated()) {
+      $currency_rate->setRate($this->getMoneyConverterRate());
 
-      if(!$transaction->getRate()) {
+      if(!$currency_rate->getRate()) {
         // Fallback functionality for rates not surved by themoneyconverter
-        $transaction->setRate($this->getBloombergRate());
+        $currency_rate->setRate($this->getBloombergRate());
       }
 
-      if($transaction->getRate() > 0) {
-        $transaction->setUpdatedAt(date('Y-m-d H:i:s'));
-        $transaction->save();
+      if($currency_rate->getRate() > 0) {
+        $currency_rate->setUpdatedAt(date('Y-m-d H:i:s'));
+        $currency_rate->save();
       } else {
-        return $this->setError(4000);
+        return $this->setError(3200);
       }
     }
 
     // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
-    $this->rate = $transaction->getRate() < 0.00001 ? number_format($transaction->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($transaction->getRate(), sfConfig::get('app_convert_decimal_result'));
+    $this->rate = $currency_rate->getRate() < 0.00001 ? number_format($currency_rate->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($currency_rate->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
-    $this->at = $transaction->getDateTimeObject('updated_at');
+    $this->at = $currency_rate->getDateTimeObject('updated_at');
   }
 
   public function getMoneyConverterRate() {
@@ -80,7 +85,7 @@ class apiActions extends myActions {
   }
 
   public function getData($cache, $url) {
-    if(!file_exists($cache) || filemtime($cache) < time() - sfConfig::get('app_cache_file')) {
+    if(!file_exists($cache) || filemtime($cache) < (time() - (sfConfig::get('app_cache_file') * 60))) {
       if(is_null($this->web)) {
         $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
       }

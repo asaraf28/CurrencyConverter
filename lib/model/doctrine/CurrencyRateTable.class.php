@@ -16,15 +16,15 @@ class CurrencyRateTable extends Doctrine_Table {
   }
 
   public function getCurrencyRate(Currency $from, Currency $to) {
-    $rate = $this->findOneByFromCodeAndToCode($from, $to);
+    $currency_rate = $this->findOneByFromCodeAndToCode($from, $to);
 
-    if(!$rate instanceOf CurrencyRate) {
-      $rate = new CurrencyRate();
-      $rate->setFromCode($from->getCode());
-      $rate->setToCode($to->getCode());
+    if(!$currency_rate instanceOf CurrencyRate) {
+      $currency_rate = new CurrencyRate();
+      $currency_rate->setFromCode($from->getCode());
+      $currency_rate->setToCode($to->getCode());
     }
 
-    return $rate;
+    return $currency_rate;
   }
 
   public function findOneByFromCodeAndToCode($from, $to) {
