@@ -13,7 +13,7 @@ class apiActions extends myActions {
     }
     
     // Check for recognised currencies
-    $currency = Doctrine::getTable('Currency');
+    $currency = Doctrine::getTable('Currency'); /* @var $currency Doctrine_Table */
     
     $this->from = $currency->findOneByCode($request->getParameter('from'));
     $this->to = $currency->findOneByCode($request->getParameter('to'));
@@ -29,16 +29,10 @@ class apiActions extends myActions {
     }
     
     // Find cached currency rate
-    $transaction = Doctrine::getTable('CurrencyRate')->findOneByFromCodeAndToCode($this->from, $this->to);
+    $transaction = Doctrine::getTable('CurrencyRate')->getCurrencyRate($this->from, $this->to); /* @var $transaction CurrencyRate */
 
     // Check if currency rate needs updating
-    if(!$transaction instanceOf CurrencyRate || $transaction->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_convert_cache') * 60))) {
-      if(!$transaction instanceOf CurrencyRate) {
-        $transaction = new CurrencyRate();
-        $transaction->setFromCode($this->from->getCode());
-        $transaction->setToCode($this->to->getCode());
-      }
-
+    if($transaction->isNew() || $transaction->isOutdated()) {
       $transaction->setRate($this->getMoneyConverterRate());
 
       if(!$transaction->getRate()) {
@@ -60,31 +54,19 @@ class apiActions extends myActions {
     $this->at = $transaction->getDateTimeObject('updated_at');
   }
 
-  public function getBrowser() {
-    if(is_null($this->web)) {
-      $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
-    }
-
-    return $this->web;
-  }
-
   public function getMoneyConverterRate() {
-    $rss = $this->getBrowser()->get(sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml')->getResponseText();
+    $rss = $this->getData(sfConfig::get('app_cache_moneyconverter'), sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml');
     $xml = new SimpleXMLElement($rss);
 
-    $item = $xml->xpath('/rss/channel/item[title="'.$this->to->getCode().'/'.$this->from->getCode().'"]');
-    $item = is_array($item) ? current($item) : false;
-
-    if($item instanceOf SimpleXMLElement) {
-      preg_match('/= ([0-9]+\.?[0-9]*) /', $item->description, $matches);
-      return $matches[1];
+    if($xml instanceOf SimpleXMLElement) {
+      return $this->getRateFromXML($this->from, $this->to, $xml);
     } else {
       return false;
     }
   }
 
   public function getBloombergRate() {
-    $js = $this->getBrowser()->get(sfConfig::get('app_source_rates_js'))->getResponseText();
+    $js = $this->getData(sfConfig::get('app_cache_bloomberg'), sfConfig::get('app_source_rates_js'));
 
     $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
     $from2cur = $this->getRateFromJS($this->from->getCode(), $js);
@@ -97,8 +79,47 @@ class apiActions extends myActions {
     }
   }
 
+  public function getData($cache, $url) {
+    if(!file_exists($cache) || filemtime($cache) < time() - sfConfig::get('app_cache_file')) {
+      if(is_null($this->web)) {
+        $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
+      }
+
+      try {
+        if (!$this->web->get($url)->responseIsError()) {
+          // Successful response (eg. 200, 201, etc)
+          $content = $this->web->getResponseText();
+
+          $file = fopen($cache, 'w');
+          fwrite($file, $content);
+          fclose($file);
+          return $content;
+        } else {
+          // Error response (eg. 404, 500, etc)
+        }
+      } catch (Exception $e) {
+        // Adapter error (eg. Host not found)
+      }
+    }
+
+    // Gracefully ignore any errors and return cache
+    $file = fopen($cache, 'r');
+    return fread($file, filesize($cache));
+  }
+
   public function getRateFromJS($code, $js) {
     preg_match('/price\[\''.$code.':CUR\'\] = ([0-9]+\.?[0-9]*)\;/', $js, $matches);
+    return isset($matches[1]) ? $matches[1] : false;
+  }
+
+  public function getRateFromXML($from, $to, $xml) {
+    $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
+    $item = is_array($item) ? current($item) : false;
+
+    if($item instanceOf SimpleXMLElement) {
+      preg_match('/= ([0-9]+\.?[0-9]*) /', $item->description, $matches);
+    }
+
     return isset($matches[1]) ? $matches[1] : false;
   }
   

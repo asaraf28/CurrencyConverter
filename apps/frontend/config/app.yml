@@ -1,6 +1,5 @@
 all:
   convert:
-    cache: 60 # minutes
     params:
       - amnt
       - from
@@ -18,6 +17,12 @@ all:
     3000: Service currently unavailable
     3100: Error in service
     4000: Currency rate unavailable
+
+  cache:
+    moneyconverter: %sf_cache_dir%/moneyconverter.rss
+    bloomberg: %sf_cache_dir%/bloomberg.js
+    database: 60 # minutes
+    file: 120 # minutes
 
   source:
     currencies: http://en.wikipedia.org/wiki/Special:Export/ISO_4217

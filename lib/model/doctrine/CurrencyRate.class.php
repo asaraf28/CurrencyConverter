@@ -10,6 +10,8 @@
  * @author     Steve Lacey
  * @version    SVN: $Id: Builder.php 7490 2010-03-29 19:53:27Z jwage $
  */
-class CurrencyRate extends BaseCurrencyRate
-{
+class CurrencyRate extends BaseCurrencyRate {
+  public function isOutdated() {
+    return $this->getDateTimeObject('updated_at')->format('U') < (time() - (sfConfig::get('app_cache_database') * 60));
+  }
 }
