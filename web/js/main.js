@@ -28,6 +28,9 @@ $(function() {
             dataType: 'jsonp',
             success: function(json) {
               $(form).find('span').text(json.to.amnt);
+            },
+            error: function() {
+              $(form).find('span').text('Error');
             }
           });
 
