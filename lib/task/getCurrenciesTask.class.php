@@ -18,7 +18,7 @@ Call it with:
   [php symfony get-currencies|INFO]
 EOF;
 
-    $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
+    $this->web = null;
   }
 
   protected function execute($arguments = array(), $options = array()) {
@@ -28,6 +28,8 @@ EOF;
     // Truncate tables to prevent duplicates and relational integrity errors
     $connection->query('TRUNCATE TABLE '.Doctrine::getTable('CurrencyCountry')->getTableName());
     $connection->query('TRUNCATE TABLE '.Doctrine::getTable('Currency')->getTableName());
+
+    $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
 
     $this->getCurrencies();
     $this->getCountries();
