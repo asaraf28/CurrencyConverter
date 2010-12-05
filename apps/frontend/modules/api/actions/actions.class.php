@@ -60,14 +60,27 @@ class apiActions extends myActions {
   }
 
   public function executeCurrencies(sfWebRequest $request) {
-    $currencies = array();
+    $cache = sfConfig::get('app_cache_currencies');
 
-    foreach(Doctrine::getTable('Currency')->findAll() as $currency) {
-      $currencies[$currency->getCode()] = $currency->getName();
+    if(file_exists($cache)) {
+      $file = fopen($cache, 'r');
+      $json = fread($file, filesize($cache));
+    } else {
+      $currencies = array();
+
+      foreach(Doctrine::getTable('Currency')->findAll() as $currency) {
+        $currencies[$currency->getCode()] = $currency->getName();
+      }
+
+      $json = json_encode($currencies);
+
+      $file = fopen($cache, 'w');
+      fwrite($file, $json);
+      fclose($file);
     }
 
     // Enable jsonp
-    return $this->renderText($request->hasParameter('callback') ? $request->getParameter('callback').'('.json_encode($currencies).');' : json_encode($currencies));
+    return $this->renderText($request->hasParameter('callback') ? $request->getParameter('callback').'('.$json.');' : $json);
   }
 
   public function getMoneyConverterRate() {
