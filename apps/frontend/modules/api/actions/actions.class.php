@@ -125,9 +125,11 @@ class apiActions extends myActions {
       }
     }
 
-    // Gracefully ignore any errors and return cache
-    $file = fopen($cache, 'r');
-    return fread($file, filesize($cache));
+    if(file_exists($cache)) {
+      // Gracefully ignore any errors and return cache
+      $file = fopen($cache, 'r');
+      return fread($file, filesize($cache));
+    }
   }
 
   public function getRateFromJS($code, $js) {
