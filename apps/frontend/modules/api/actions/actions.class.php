@@ -61,6 +61,7 @@ class apiActions extends myActions {
 
   public function executeCurrencies(sfWebRequest $request) {
     $cache = sfConfig::get('app_cache_currencies');
+    sfConfig::set('sf_web_debug', false);
 
     if(file_exists($cache)) {
       $file = fopen($cache, 'r');
