@@ -15,8 +15,6 @@ all:
 
   request:
     class: myWebRequest
-    param:
-      default_format: xml
 
   view_cache_manager:
     class: sfViewCacheManager

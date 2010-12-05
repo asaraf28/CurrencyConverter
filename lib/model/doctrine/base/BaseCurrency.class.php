@@ -53,7 +53,7 @@ abstract class BaseCurrency extends sfDoctrineRecord
              'length' => 1,
              ));
 
-        $this->option('orderBy', 'code ASC');
+        $this->option('orderBy', 'name ASC');
     }
 
     public function setUp()

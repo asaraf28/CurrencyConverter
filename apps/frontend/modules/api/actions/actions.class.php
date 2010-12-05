@@ -3,7 +3,7 @@
 class apiActions extends myActions {
   public function executeConvert(sfWebRequest $request) {
     // Check for additional get parameters
-    if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
+    if(!$request->getRequestFormat() == 'json' && count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
       return $this->setError(1200);
     }
 
@@ -11,9 +11,9 @@ class apiActions extends myActions {
     if(!$request->hasParameter('amnt') || !$request->hasParameter('from') || !$request->hasParameter('to')) {
       return $this->setError(1100);
     }
-    
+
     $currency = Doctrine::getTable('Currency'); /* @var $currency Doctrine_Table */
-    
+
     $this->from = $currency->findOneByCode($request->getParameter('from'));
     $this->to = $currency->findOneByCode($request->getParameter('to'));
     $this->amount = $request->getParameter('amnt');
@@ -22,7 +22,7 @@ class apiActions extends myActions {
     if(!$this->from instanceOf Currency || !$this->to instanceOf Currency) {
       return $this->setError(2000);
     }
-    
+
     // Check the currencies are not the same
     if($this->from == $this->to) {
       return $this->setError(1300);
@@ -32,7 +32,7 @@ class apiActions extends myActions {
     if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_result')) {
       return $this->setError(2100);
     }
-    
+
     // Find cached currency rate
     $currency_rate = Doctrine::getTable('CurrencyRate')->getCurrencyRate($this->from, $this->to); /* @var $currency_rate CurrencyRate */
 
@@ -57,6 +57,24 @@ class apiActions extends myActions {
     $this->rate = $currency_rate->getRate() < 0.00001 ? number_format($currency_rate->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($currency_rate->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
     $this->at = $currency_rate->getDateTimeObject('updated_at');
+
+    if($request->getRequestFormat() == 'json') {
+      $json = json_encode(array('result' => $this->result));
+
+      // Enable jsonp
+      return $this->renderText($request->hasParameter('callback') ? $request->getParameter('callback').'('.$json.');' : $json);
+    }
+  }
+
+  public function executeCurrencies(sfWebRequest $request) {
+    $currencies = array();
+
+    foreach(Doctrine::getTable('Currency')->findAll() as $currency) {
+      $currencies[$currency->getCode()] = $currency->getName();
+    }
+
+    // Enable jsonp
+    return $this->renderText($request->hasParameter('callback') ? $request->getParameter('callback').'('.json_encode($currencies).');' : json_encode($currencies));
   }
 
   public function getMoneyConverterRate() {
@@ -127,7 +145,7 @@ class apiActions extends myActions {
 
     return isset($matches[1]) ? $matches[1] : false;
   }
-  
+
   public function setError($code) {
     $this->code = $code;
     $this->message = sfConfig::get('app_error_'.$code);

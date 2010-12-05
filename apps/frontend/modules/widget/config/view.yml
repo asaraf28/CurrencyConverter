@@ -1,0 +1,3 @@
+all:
+  http_metas:
+    content-type: text/html

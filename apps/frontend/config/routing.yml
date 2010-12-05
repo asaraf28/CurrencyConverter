@@ -11,8 +11,27 @@ convert:
   param:
     module: api
     action: convert
+    sf_format: xml
   options:
     segment_separators: [/] # remove "." which is used to define decimals
+
+convert_format:
+  class: sfRoute
+  url:   /:amnt/from/:from/to/:to/:sf_format
+  param:
+    module: api
+    action: convert
+    sf_format: json
+  options:
+    segment_separators: [/] # remove "." which is used to define decimals
+
+currencies:
+  class: sfRoute
+  url: /currencies.:sf_format
+  param:
+    module: api
+    action: currencies
+    sf_format: json
 
 task:
   class: sfRoute
@@ -20,3 +39,11 @@ task:
   param:
     module: task
     action: cc
+
+widget:
+  class: sfRoute
+  url: /widget.:sf_format
+  param:
+    module: widget
+    action: index
+    sf_format: html

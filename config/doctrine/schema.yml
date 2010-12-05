@@ -16,7 +16,7 @@ Currency:
       type: integer(1)
       notnull: true
   options:
-    orderBy: code ASC
+    orderBy: name ASC
 
 CurrencyCountry:
   columns:
