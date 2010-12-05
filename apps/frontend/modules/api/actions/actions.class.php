@@ -29,7 +29,7 @@ class apiActions extends myActions {
     }
 
     // Check if amount contains >2 decimal digits.
-    if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_result')) {
+    if(!is_numeric($this->amount) || strlen(substr(strrchr($this->amount, '.'), 1)) > sfConfig::get('app_convert_decimal_amount')) {
       return $this->setError(2100);
     }
 
