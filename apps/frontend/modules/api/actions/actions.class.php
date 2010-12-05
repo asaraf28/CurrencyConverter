@@ -79,27 +79,32 @@ class apiActions extends myActions {
 
   public function getMoneyConverterRate() {
     $rss = $this->getData(sfConfig::get('app_cache_moneyconverter'), sfConfig::get('app_source_rates_rss').'/'.$this->from->getCode().'/rss.xml');
-    $xml = new SimpleXMLElement($rss);
 
-    if($xml instanceOf SimpleXMLElement) {
-      return $this->getRateFromXML($this->from, $this->to, $xml);
-    } else {
-      return false;
+    if($rss) {
+      $xml = new SimpleXMLElement($rss);
+
+      if($xml instanceOf SimpleXMLElement) {
+        return $this->getRateFromXML($this->from, $this->to, $xml);
+      }
     }
+
+    return false;
   }
 
   public function getBloombergRate() {
     $js = $this->getData(sfConfig::get('app_cache_bloomberg'), sfConfig::get('app_source_rates_js'));
 
-    $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
-    $from2cur = $this->getRateFromJS($this->from->getCode(), $js);
-    $to2cur = $this->getRateFromJS($this->to->getCode(), $js);
+    if($js) {
+      $usd2cur = $this->getRateFromJS(sfConfig::get('app_currency_base'), $js); // This should always be 1
+      $from2cur = $this->getRateFromJS($this->from->getCode(), $js);
+      $to2cur = $this->getRateFromJS($this->to->getCode(), $js);
 
-    if($usd2cur && $from2cur && $to2cur) {
-      return $usd2cur / $from2cur * $to2cur;
-    } else {
-      return false;
+      if($usd2cur && $from2cur && $to2cur) {
+        return $usd2cur / $from2cur * $to2cur;
+      }
     }
+
+    return false;
   }
 
   public function getData($cache, $url) {
@@ -130,6 +135,8 @@ class apiActions extends myActions {
       $file = fopen($cache, 'r');
       return fread($file, filesize($cache));
     }
+
+    return false;
   }
 
   public function getRateFromJS($code, $js) {
