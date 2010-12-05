@@ -148,15 +148,6 @@ class apiActions extends myActions {
     return isset($matches[1]) ? $matches[1] : false;
   }
 
-  public function execute($request) {
-    // Add callback for jsonp
-    if($request->getRequestFormat() == 'json') {
-      $this->callback = $request->getParameter('callback');
-    }
-    
-    return parent::execute($request);
-  }
-
   public function setError($code) {
     $this->code = $code;
     $this->message = sfConfig::get('app_error_'.$code);
