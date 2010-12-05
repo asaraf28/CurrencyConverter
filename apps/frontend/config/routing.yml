@@ -4,6 +4,7 @@ homepage:
   param:
     module: api
     action: convert
+    sf_format: xml
 
 convert:
   class: sfRoute
