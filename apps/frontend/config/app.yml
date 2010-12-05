@@ -27,6 +27,7 @@ all:
   cache:
     moneyconverter: %sf_cache_dir%/moneyconverter.rss
     bloomberg: %sf_cache_dir%/bloomberg.js
+    currencies: %sf_cache_dir%/currencies.json
     database: 60 # minutes
     file: 120 # minutes
 
