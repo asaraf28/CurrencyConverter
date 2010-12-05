@@ -3,7 +3,7 @@
 class apiActions extends myActions {
   public function executeConvert(sfWebRequest $request) {
     // Check for additional get parameters
-    if(!$request->getRequestFormat() == 'json' && count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
+    if($request->getRequestFormat() != 'json' && count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
       return $this->setError(1200);
     }
 
