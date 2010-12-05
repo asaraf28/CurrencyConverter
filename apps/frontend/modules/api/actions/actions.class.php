@@ -56,7 +56,7 @@ class apiActions extends myActions {
     // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
     $this->rate = $currency_rate->getRate() < 0.00001 ? number_format($currency_rate->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($currency_rate->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
-    $this->at = $currency_rate->getDateTimeObject('updated_at')->format('d M Y H:i');
+    $this->at = $currency_rate->getDateTimeObject('updated_at')->format('d F Y H:i');
   }
 
   public function executeCurrencies(sfWebRequest $request) {
