@@ -1,6 +1,11 @@
 all:
   convert:
-    params:
+    json_params:
+      - amnt
+      - from
+      - to
+      - callback
+    xml_params:
       - amnt
       - from
       - to

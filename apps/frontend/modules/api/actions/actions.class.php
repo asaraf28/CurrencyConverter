@@ -3,7 +3,7 @@
 class apiActions extends myActions {
   public function executeConvert(sfWebRequest $request) {
     // Check for additional get parameters
-    if($request->getRequestFormat() != 'json' && count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_params')))) {
+    if(count(array_diff(array_keys($request->getGetParameters()), sfConfig::get('app_convert_'.$request->getRequestFormat().'_params')))) {
       return $this->setError(1200);
     }
 
@@ -56,14 +56,7 @@ class apiActions extends myActions {
     // We want to be precise for currencies like ZWD where rates are often miniscule, but for other currencies 5 dp is fine
     $this->rate = $currency_rate->getRate() < 0.00001 ? number_format($currency_rate->getRate(), sfConfig::get('app_convert_decimal_stored')) : round($currency_rate->getRate(), sfConfig::get('app_convert_decimal_result'));
     $this->result = sprintf('%0.'.sfConfig::get('app_convert_decimal_result').'f', $this->amount * $this->rate);
-    $this->at = $currency_rate->getDateTimeObject('updated_at');
-
-    if($request->getRequestFormat() == 'json') {
-      $json = json_encode(array('result' => $this->result));
-
-      // Enable jsonp
-      return $this->renderText($request->hasParameter('callback') ? $request->getParameter('callback').'('.$json.');' : $json);
-    }
+    $this->at = $currency_rate->getDateTimeObject('updated_at')->format('d M Y H:i');
   }
 
   public function executeCurrencies(sfWebRequest $request) {
@@ -153,6 +146,15 @@ class apiActions extends myActions {
     }
 
     return isset($matches[1]) ? $matches[1] : false;
+  }
+
+  public function execute($request) {
+    // Add callback for jsonp
+    if($request->getRequestFormat() == 'json') {
+      $this->callback = $request->getParameter('callback');
+    }
+    
+    return parent::execute($request);
   }
 
   public function setError($code) {

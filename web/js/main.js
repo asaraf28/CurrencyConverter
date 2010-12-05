@@ -28,7 +28,7 @@ $(function() {
             url: uri + '/' + $(this).find('.amount').val() + '/from/' + $(this).find('.from').val() + '/to/' + $(this).find('.to').val() + '/json',
             dataType: 'jsonp',
             success: function(json) {
-              $(form).find('span').text(json.result);
+              $(form).find('span').text(json.to.amnt);
             }
           });
 

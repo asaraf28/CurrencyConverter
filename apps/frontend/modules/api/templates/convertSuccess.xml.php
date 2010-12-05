@@ -1,4 +1,4 @@
-  <at><?php echo $at->format('d M Y H:i') ?></at>
+  <at><?php echo $at ?></at>
   <rate><?php echo $rate ?></rate>
   <from>
     <code><?php echo $from->getCode() ?></code>
