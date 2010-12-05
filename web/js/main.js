@@ -1,6 +1,5 @@
 $(function() {
   var uri = 'http://www.cems.uwe.ac.uk/~slacey/convert';
-  var uri = 'http://cc.i7.stevelacey.net';
 
   $.ajax({
     url: uri + '/currencies.json',
