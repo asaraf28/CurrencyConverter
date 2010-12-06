@@ -78,6 +78,7 @@ class apiActions extends myActions {
       $file = fopen($cache, 'w');
       fwrite($file, $json);
       fclose($file);
+      chmod($cache, 0755);
     }
 
     // Enable jsonp
@@ -128,6 +129,7 @@ class apiActions extends myActions {
           $file = fopen($cache, 'w');
           fwrite($file, $content);
           fclose($file);
+          chmod($cache, 0755);
           return $content;
         } else {
           // Error response (eg. 404, 500, etc)

@@ -27,7 +27,7 @@ class CurrencyRateTable extends Doctrine_Table {
     return $currency_rate;
   }
 
-  public function findOneByFromCodeAndToCode($from, $to) {
+  public function findOneByFromCodeAndToCode(Currency $from, Currency $to) {
     return Doctrine_Query::create()->
       from('CurrencyRate')->
       where('from_code = ?', $from->getCode())->
