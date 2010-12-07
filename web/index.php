@@ -9,5 +9,5 @@ if(in_array($env, array('dev', 'demo'))) {
   error_reporting(E_ALL);
 }
 
-$configuration = ProjectConfiguration::getApplicationConfiguration('frontend', $env, in_array($env, array('dev', 'demo')));
+$configuration = ProjectConfiguration::getApplicationConfiguration('frontend', $env, true);
 sfContext::createInstance($configuration)->dispatch();
