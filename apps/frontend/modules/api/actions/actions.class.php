@@ -153,7 +153,7 @@ class apiActions extends myActions {
     return isset($matches[1]) ? $matches[1] : false;
   }
 
-  public function getRateFromXML($from, $to, $xml) {
+  public function getRateFromXML(Currency $from, Currency $to, SimpleXMLElement $xml) {
     $item = $xml->xpath('/rss/channel/item[title="'.$to->getCode().'/'.$from->getCode().'"]');
     $item = is_array($item) ? current($item) : false;
 
