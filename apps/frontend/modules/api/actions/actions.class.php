@@ -17,7 +17,7 @@ class apiActions extends myActions {
     $this->from = $currency->findOneByCode($request->getParameter('from'));
     $this->to = $currency->findOneByCode($request->getParameter('to'));
     $this->amount = $request->getParameter('amnt');
-
+    
     // Check for recognised currencies
     if(!$this->from instanceOf Currency || !$this->to instanceOf Currency) {
       return $this->setError(2000);

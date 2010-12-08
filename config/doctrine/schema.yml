@@ -1,7 +1,6 @@
-actAs:
-  Timestampable: ~
-
 Currency:
+  actAs:
+    Timestampable: ~
   columns:
     code:
       type: string(3)
@@ -17,29 +16,56 @@ Currency:
       notnull: true
   options:
     orderBy: name ASC
+  relations:
+    Countries:
+      class: Country
+      refClass: CurrencyCountry
+      local: currency_code
+      foreign: country_id
+      foreignAlias: Currencies
 
 CurrencyCountry:
+  columns:
+    currency_code:
+      type: string(3)
+      primary: true
+    country_id:
+      type: integer(11)
+      primary: true
+  relations:
+    Currency:
+      class: Currency
+      local: currency_code
+      foreign: code
+    Country:
+      class: Country
+      local: country_id
+      foreign: id
+
+Country:
+  actAs:
+    Timestampable: ~
   columns:
     id:
       type: integer(11)
       primary: true
       autoincrement: true
-    code:
-      type: string(3)
-      notnull: true
     name:
       type: string(255)
       notnull: true
   options:
     orderBy: name ASC
   relations:
-    Currency:
+    Currencies:
       class: Currency
-      local: code
-      foreign: code
+      refClass: CurrencyCountry
+      local: country_id
+      foreign: currency_code
       foreignAlias: Countries
 
 CurrencyRate:
+  actAs:
+    Timestampable: ~
   columns:
     from_code:
       type: string(3)

@@ -30,7 +30,6 @@ EOF;
     $connection->query('TRUNCATE TABLE '.Doctrine::getTable('Currency')->getTableName());
 
     $this->web = new sfWebBrowser(array(), 'sfCurlAdapter', array('proxy' => sfConfig::get('app_web_proxy')));
-
     $this->getCurrencies();
     $this->getCountries();
   }
@@ -74,10 +73,16 @@ EOF;
       $currency = Doctrine::getTable('Currency')->findOneByCode($option->getAttribute('value'));
       $name = substr($option->textContent, 0, strpos($option->textContent, ','));
 
+
       if($currency instanceOf Currency && !empty($name)) {
-        $country = new CurrencyCountry();
-        $country->setCurrency($currency);
-        $country->setName($name);
+        $country = Doctrine::getTable('Country')->findOneByName($name);
+
+        if(!$country instanceOf Country) {
+          $country = new Country();
+          $country->setName($name);
+        }
+
+        $country->Currencies[] = $currency;
         $country->save();
       }
     }

@@ -10,17 +10,20 @@
  * @property string $name
  * @property integer $digits
  * @property Doctrine_Collection $Countries
+ * @property Doctrine_Collection $CurrencyCountry
  * 
- * @method string              getCode()      Returns the current record's "code" value
- * @method string              getNumber()    Returns the current record's "number" value
- * @method string              getName()      Returns the current record's "name" value
- * @method integer             getDigits()    Returns the current record's "digits" value
- * @method Doctrine_Collection getCountries() Returns the current record's "Countries" collection
- * @method Currency            setCode()      Sets the current record's "code" value
- * @method Currency            setNumber()    Sets the current record's "number" value
- * @method Currency            setName()      Sets the current record's "name" value
- * @method Currency            setDigits()    Sets the current record's "digits" value
- * @method Currency            setCountries() Sets the current record's "Countries" collection
+ * @method string              getCode()            Returns the current record's "code" value
+ * @method string              getNumber()          Returns the current record's "number" value
+ * @method string              getName()            Returns the current record's "name" value
+ * @method integer             getDigits()          Returns the current record's "digits" value
+ * @method Doctrine_Collection getCountries()       Returns the current record's "Countries" collection
+ * @method Doctrine_Collection getCurrencyCountry() Returns the current record's "CurrencyCountry" collection
+ * @method Currency            setCode()            Sets the current record's "code" value
+ * @method Currency            setNumber()          Sets the current record's "number" value
+ * @method Currency            setName()            Sets the current record's "name" value
+ * @method Currency            setDigits()          Sets the current record's "digits" value
+ * @method Currency            setCountries()       Sets the current record's "Countries" collection
+ * @method Currency            setCurrencyCountry() Sets the current record's "CurrencyCountry" collection
  * 
  * @package    currency-converter
  * @subpackage model
@@ -59,9 +62,14 @@ abstract class BaseCurrency extends sfDoctrineRecord
     public function setUp()
     {
         parent::setUp();
-        $this->hasMany('CurrencyCountry as Countries', array(
+        $this->hasMany('Country as Countries', array(
+             'refClass' => 'CurrencyCountry',
+             'local' => 'currency_code',
+             'foreign' => 'country_id'));
+
+        $this->hasMany('CurrencyCountry', array(
              'local' => 'code',
-             'foreign' => 'code'));
+             'foreign' => 'currency_code'));
 
         $timestampable0 = new Doctrine_Template_Timestampable();
         $this->actAs($timestampable0);

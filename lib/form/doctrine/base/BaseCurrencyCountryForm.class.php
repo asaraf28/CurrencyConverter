@@ -15,19 +15,13 @@ abstract class BaseCurrencyCountryForm extends BaseFormDoctrine
   public function setup()
   {
     $this->setWidgets(array(
-      'id'         => new sfWidgetFormInputHidden(),
-      'code'       => new sfWidgetFormDoctrineChoice(array('model' => $this->getRelatedModelName('Currency'), 'add_empty' => false)),
-      'name'       => new sfWidgetFormInputText(),
-      'created_at' => new sfWidgetFormDateTime(),
-      'updated_at' => new sfWidgetFormDateTime(),
+      'currency_code' => new sfWidgetFormInputHidden(),
+      'country_id'    => new sfWidgetFormInputHidden(),
     ));
 
     $this->setValidators(array(
-      'id'         => new sfValidatorChoice(array('choices' => array($this->getObject()->get('id')), 'empty_value' => $this->getObject()->get('id'), 'required' => false)),
-      'code'       => new sfValidatorDoctrineChoice(array('model' => $this->getRelatedModelName('Currency'))),
-      'name'       => new sfValidatorString(array('max_length' => 255)),
-      'created_at' => new sfValidatorDateTime(),
-      'updated_at' => new sfValidatorDateTime(),
+      'currency_code' => new sfValidatorChoice(array('choices' => array($this->getObject()->get('currency_code')), 'empty_value' => $this->getObject()->get('currency_code'), 'required' => false)),
+      'country_id'    => new sfValidatorChoice(array('choices' => array($this->getObject()->get('country_id')), 'empty_value' => $this->getObject()->get('country_id'), 'required' => false)),
     ));
 
     $this->widgetSchema->setNameFormat('currency_country[%s]');
