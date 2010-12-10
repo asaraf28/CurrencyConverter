@@ -1,0 +1,1 @@
+<?php include_partial('error', array('code' => $code, 'message' => $message)) ?>
