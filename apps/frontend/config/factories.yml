@@ -18,6 +18,9 @@ all:
     param:
       default_format: xml
 
+  exception:
+    class: myException
+
   view_cache_manager:
     class: sfViewCacheManager
     param:
