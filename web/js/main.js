@@ -22,12 +22,13 @@ $(function() {
         
         $(this, 'form').submit(function(event) {
           var form = this;
+          $(form).find('span').html('<img src="' + uri + '/images/prakash.jpg" alt="Prakash Loader"/>');
 
           $.ajax({
             url: uri + '/' + $(this).find('.amount').val() + '/from/' + $(this).find('.from').val() + '/to/' + $(this).find('.to').val() + '/json',
             dataType: 'jsonp',
             success: function(json) {
-              $(form).find('span').text(json.to.amnt);
+              $(form).find('span').text(json.from.amnt + ' ' + json.from.name + ' is ' + Math.round(json.to.amnt * 100) / 100 + ' ' + json.to.name);
             },
             error: function() {
               $(form).find('span').text('Error');
