@@ -4,7 +4,7 @@
 
 <h2>Installation</h2>
 
-<p>This is a basic example of a basic jQuery widget for the currency converter which can be used on other websites.</p>
+<p>This is a basic example of a jQuery widget for the currency converter which can be used on other websites.</p>
 <p>To add the widget to your website simply append &lt;div class="currency-converter"&gt;&lt;/div&gt; to your page wherever you want the converter to appear, and implement the JavaScript below or hosted at <a href="http://www.cems.uwe.ac.uk/~slacey/convert/js/main.js">http://www.cems.uwe.ac.uk/~slacey/convert/js/main.js</a>.</p>
 
 <h3>JavaScript</h3>
