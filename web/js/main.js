@@ -28,7 +28,11 @@ $(function() {
             url: uri + '/' + $(this).find('.amount').val() + '/from/' + $(this).find('.from').val() + '/to/' + $(this).find('.to').val() + '/json',
             dataType: 'jsonp',
             success: function(json) {
-              $(form).find('span').text(json.from.amnt + ' ' + json.from.name + ' is ' + Math.round(json.to.amnt * 100) / 100 + ' ' + json.to.name);
+              if(!json.error) {
+                $(form).find('span').text(json.from.amnt + ' ' + json.from.name + ' is ' + Math.round(json.to.amnt * 100) / 100 + ' ' + json.to.name);
+              } else {
+                $(form).find('span').text(json.error.message);
+              }
             },
             error: function() {
               $(form).find('span').text('Error');
