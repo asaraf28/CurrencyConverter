@@ -1,3 +1,5 @@
 cache/*
+!cache/.gitignore
 log/*
+!log/.gitignore
 web/uploads/*
