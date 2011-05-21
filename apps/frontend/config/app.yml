@@ -44,9 +44,6 @@ all:
   currency_alias:
     ZWL: ZWD # The ISO 4217 spec lists the Zimbabwean Dollar incorrectly, everywhere else accepts it as ZWD.
 
+demo:
   web:
     proxy: cache.uwe.ac.uk:8080
-
-dev:
-  web:
-    proxy: # Remove UWE Proxy

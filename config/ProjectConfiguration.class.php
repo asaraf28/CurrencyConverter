@@ -14,7 +14,7 @@ class ProjectConfiguration extends sfProjectConfiguration {
   }
 
   public function getEnvironment() {
-    if(strpos($_SERVER['HTTP_HOST'], '.stevelacey.net' ) !== false) {
+    if(strpos($_SERVER['HTTP_HOST'], 'i7.stevelacey.net' ) !== false) {
       return 'dev';
     } else if(strpos(urldecode($_SERVER['REQUEST_URI']), '/~slacey/convert') !== false) {
       return 'demo';
